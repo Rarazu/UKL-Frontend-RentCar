@@ -67,6 +67,57 @@ export default function Pelanggan() {
         setAction(`edit`)
     }
 
+    let savePelanggan = event => {
+        event.preventDefault()
+
+        modal.hide()
+        if (action === 'insert'){
+            let endpoint = `http://localhost:8000/pelanggan`
+            let request = {
+                nama_pelanggan : namaPelanggan,
+                alamat_pelanggan : alamatPelanggan,
+                kontak : kontak
+            }
+
+            // send data
+            axios.post(endpoint, request, authorization)
+            .then(response => {
+                showToast(response.data.message)
+                getPelanggan()
+            })
+            .catch(error => console.log(error))
+        } else if (action === 'edit') {
+            let endpoint = `http://localhost:8000/pelanggan/${idPelanggan}`
+            let request = {
+                nama_pelanggan : namaPelanggan,
+                alamat_pelanggan : alamatPelanggan,
+                kontak : kontak
+            }
+
+            // send data
+            axios.put(endpoint, request, authorization)
+            .then(response => {
+                showToast(response.data.message)
+                getPelanggan()
+            })
+            .catch(error => console.log(error))
+        }
+    }
+
+    let deletePelanggan = item => {
+        if (window.confirm(`Are you sure?`)) {
+            let endpoint = `http://localhost:8000/pelanggan/${item.id_pelanggan}`
+
+            // send data
+            axios.delete(endpoint, authorization)
+            .then(response => {
+                showToast(response.data.message)
+                getPelanggan()
+            })
+            .catch(error => console.log(error))
+        }
+    }
+
     useEffect(() => {
         let modal = new Modal(document.getElementById(`modal_pelanggan`))
         setModal(modal)
@@ -100,7 +151,7 @@ export default function Pelanggan() {
                 <div className="card-body">
                     <ul className="list-group">
                         {pelanggan.map(item => (
-                            <li className="list-group-item"
+                            <li className="list-group-item" style={{background: `lightcyan`}}
                                 key={`key-${item.id_pelanggan}`}>
                                 <div className="row">
                                     {/* < div className="col-lg-4 p-2" >
@@ -144,7 +195,8 @@ export default function Pelanggan() {
                                             onClick={() => editPelanggan(item)}>
                                                 <span className="fa fa-edit"></span> Edit
                                             </button>
-                                            <button className="btn btn-danger btn-sm m-2">
+                                            <button className="btn btn-danger btn-sm m-2"
+                                            onClick={() => deletePelanggan(item)}>
                                                 <span className="fa fa-trash"></span> Delete
                                             </button>
                                         </div>
@@ -170,7 +222,7 @@ export default function Pelanggan() {
                                     </h3>
                                 </div>
                                 <div className="card-body">
-                                    <form>
+                                    <form onSubmit={ev => savePelanggan(ev)}>
                                         Nama :
                                         <input type="text" className="form-control mb-2" required 
                                         onChange={e => setNamaPelanggan(e.target.value)}

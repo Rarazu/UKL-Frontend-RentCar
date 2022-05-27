@@ -142,8 +142,8 @@ export default function Pelanggan() {
             {/* End Toast Component */}
 
             <div className="card m-3">
-                <div className="card-header bg-info">
-                    <h3 className="fw-light" style={{ color: `darkblue` }}>
+                <div className="card-header" style={{background : `cornflowerblue`}}>
+                    <h3 className="fw-light" style={{ color: `lavender` }}>
                         Daftar Pelanggan
                     </h3>
                 </div>

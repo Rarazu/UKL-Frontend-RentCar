@@ -17,7 +17,15 @@ export default function Mobil() {
     let [action, setAction] = useState("")
     let [message, setMessage] = useState("")
     let [modal, setModal] = useState("")
+    let [modalSewa, setModalSewa] = useState("")
     let [uploadImage, setUploadImage] = useState(true)
+
+    // sewa 
+    let [pelanggan, setPelanggan] = useState([])
+    
+
+    // sewa
+    
 
     let token = localStorage.getItem(`token-rent`)
     let authorization = {
@@ -54,7 +62,7 @@ export default function Mobil() {
 
     let addMobil = () => {
         modal.show()
-        
+
         setIdMobil(0)
         setNomorMobil("")
         setMerk("")
@@ -69,7 +77,7 @@ export default function Mobil() {
 
     let editMobil = item => {
         modal.show()
-        
+
         setIdMobil(item.id_mobil)
         setNomorMobil(item.nomor_mobil)
         setMerk(item.merk)
@@ -82,11 +90,78 @@ export default function Mobil() {
         setUploadImage(false)
     }
 
+    let saveMobil = ev => {
+        ev.preventDefault()
+        modal.hide()
+
+        if (action === `insert`) {
+            let endpoint = `http://localhost:8000/mobil`
+            let request = new FormData()
+            request.append(`nomor_mobil`, nomorMobil)
+            request.append(`merk`, merk)
+            request.append(`jenis`, jenis)
+            request.append(`warna`, warna)
+            request.append(`tahun_pembuatan`, tahunPembuatan)
+            request.append(`biaya_sewa`, biayaSewa)
+            request.append(`image`, image)
+
+            axios.post(endpoint, request, authorization)
+                .then(response => {
+                    showToast(response.data.message)
+                    getMobil()
+                })
+                .catch(error => console.log(error))
+        } else if (action === `edit`) {
+            let endpoint = `http://localhost:8000/mobil/${idMobil}`
+            let request = new FormData()
+            request.append(`nomor_mobil`, nomorMobil)
+            request.append(`merk`, merk)
+            request.append(`jenis`, jenis)
+            request.append(`warna`, warna)
+            request.append(`tahun_pembuatan`, tahunPembuatan)
+            request.append(`biaya_sewa`, biayaSewa)
+
+            if (uploadImage === true) {
+                request.append(`image`, image)
+            }
+
+            axios.put(endpoint, request, authorization)
+                .then(response => {
+                    showToast(response.data.message)
+                    getMobil()
+                })
+                .catch(error => console.log(error))
+        }
+    }
+
+    let deleteMobil = item => {
+        if (window.confirm(`Are you sure?`)) {
+            let endpoint = `http://localhost:8000/mobil/${item.id_mobil}`
+
+            axios.delete(endpoint, authorization)
+                .then(response => {
+                    showToast(response.data.message)
+                    getMobil()
+                })
+                .catch(error => console.log(error))
+        }
+    }
+
+    let addSewa = item => {
+        modalSewa.show()
+        setIdMobil(item.id_mobil)
+    }
+
     useEffect(() => {
         let myModal = new Modal(
             document.getElementById("modal_mobil")
         )
         setModal(myModal)
+
+        let sewa = new Modal(
+            document.getElementById("modal_sewa")
+        )
+        setModalSewa(sewa)
         getMobil()
     }, [])
 
@@ -119,44 +194,53 @@ export default function Mobil() {
                             <li className="list-group-item"
                                 key={`key-${item.id_mobil}`}>
                                 <div className="row">
+
                                     {/* gambar */}
-                                    <div className="col-lg-3">
+                                    <div className="col-lg-3 text-center">
                                         <img src={`http://localhost:8000/image/${item.image}`}
                                             alt="Pict"
                                             style={{ width: `200px`, height: `150px` }} />
                                     </div>
 
                                     {/* deskripsi */}
-                                    < div className="col-lg-3 p-2">
+                                    < div className="col-lg-3">
+                                        <small className="fst-italic" style={{color: `darkblue`}}>Merk</small>
+                                        <h5 className="fw-bold">{item.merk}</h5>
+                                        <small>Biaya Sewa</small>
+                                        <h5 className="fw-bold">{item.biaya_sewa} / hari</h5>
+                                    </div>
+
+                                    <div className="col-lg-3 p-2" >
                                         <h4 className="fw-light">ID : {item.id_mobil}</h4>
-                                        <small>Merk : {item.merk}</small> <br />
+                                        <small>Nomor Mobil : {item.nomor_mobil}</small> <br />
                                         <small>Jenis : {item.jenis}</small> <br />
                                         <small>Warna : {item.warna}</small> <br />
                                         <small>Tahun Pembuatan : {item.tahun_pembuatan}</small> <br />
                                     </div>
 
-                                    <div className="col-lg-3 p-2" >
-                                        <div className="p-1 m-2" style={{ border: `1px solid blue`, background: `lightcyan` }}>
-                                            <small>Nomor Mobil</small>
-                                            <h6>{item.nomor_mobil}</h6>
-                                        </div>
-                                        <div className="p-1 m-2" style={{ border: `1px solid blue`, background: `lightskyblue` }}>
-                                            <small>Biaya Sewa /hari</small>
-                                            <h6>{item.biaya_sewa}</h6>
-                                        </div>
-                                    </div>
-
-                                    <div className="col-lg-3 p-2">
+                                    <div className="col-lg-1 p-2">
                                         <div className="d-grid gap-2">
                                             <small className="text-center" style={{ color: `darkblue` }}>
                                                 Option
                                             </small>
                                             <button className="btn btn-info btn-sm m-1"
-                                            onClick={() => editMobil(item)}>
-                                                <span className="fa fa-edit"></span> Edit
+                                                onClick={() => editMobil(item)}>
+                                                <span className="fa fa-edit"></span> 
                                             </button>
-                                            <button className="btn btn-danger btn-sm m-1">
-                                                <span className="fa fa-trash"></span> Delete
+                                            <button className="btn btn-danger btn-sm m-1"
+                                                onClick={() => deleteMobil(item)}>
+                                                <span className="fa fa-trash"></span> 
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div className="col-lg-2 p-2">
+                                        <div className="d-grid gap-2">
+                                            <small className="text-center" style={{ color: `darkblue` }}>
+                                                Sewa
+                                            </small>
+                                            <button className="btn btn-warning btn-sm m-1"
+                                            onClick={() => addSewa()}>
+                                                <span className="fa fa-shopping-basket"></span> Sewa
                                             </button>
                                         </div>
                                     </div>
@@ -180,45 +264,46 @@ export default function Mobil() {
                                     </h4>
                                 </div>
                                 <div className="modal-body">
-                                    <form>
+                                    <form onSubmit={(ev) => saveMobil(ev)}>
                                         Nomor Mobil
-                                        <input type="text" className="form-control mb-2" required 
-                                        value={nomorMobil} onChange={ev => setNomorMobil(ev.target.value)}/>
+                                        <input type="text" className="form-control mb-2" required
+                                            value={nomorMobil} onChange={ev => setNomorMobil(ev.target.value)} />
 
                                         Merk
-                                        <input type="text" className="form-control mb-2" required 
-                                        value={merk} onChange={ev => setMerk(ev.target.value)}/>
+                                        <input type="text" className="form-control mb-2" required
+                                            value={merk} onChange={ev => setMerk(ev.target.value)} />
 
                                         Jenis
-                                        <input type="text" className="form-control mb-2" required 
-                                        value={jenis} onChange={ev => setjenis(ev.target.value)}/>
+                                        <input type="text" className="form-control mb-2" required
+                                            value={jenis} onChange={ev => setjenis(ev.target.value)} />
 
                                         Warna
-                                        <input type="text" className="form-control mb-2" required 
-                                        value={warna} onChange={ev => setWarna(ev.target.value)}/>
+                                        <input type="text" className="form-control mb-2" required
+                                            value={warna} onChange={ev => setWarna(ev.target.value)} />
 
                                         Tahun Pembuatan
                                         <input type="text" className="form-control mb-2" required
-                                        value={tahunPembuatan} onChange={ev => setTahunPembuatan(ev.target.value)} />
+                                            value={tahunPembuatan} onChange={ev => setTahunPembuatan(ev.target.value)} />
 
                                         Biaya Sewa
-                                        <input type="number" className="form-control mb-2" required 
-                                        value={biayaSewa} onChange={ev => setBiayaSewa(ev.target.value)}/>
+                                        <input type="number" className="form-control mb-2" required
+                                            value={biayaSewa} onChange={ev => setBiayaSewa(ev.target.value)} />
 
                                         Gambar
-                                        <input type="file" 
-                                        className={`form-control mb-2 ${uploadImage ? `` : `d-none`}`} 
-                                        required={uploadImage}
-                                        accept="image/*"
-                                        onChange={ev => setImage(ev.target.value[0])} />
+                                        <input type="file"
+                                            className={`form-control mb-2 ${uploadImage ? `` : `d-none`}`}
+                                            required={uploadImage}
+                                            accept="image/*"
+                                            onChange={ev => setImage(ev.target.files[0])} />
 
-                                        <br/>
+                                        <br />
                                         <button className={`btn btn-sm my-2 ${uploadImage ? `d-none` : ``}`}
-                                        type="button"
-                                        style={{background: `lightskyblue`}}>
-                                            Click to re-upload image 
+                                            type="button"
+                                            style={{ background: `lightskyblue` }}
+                                            onClick={() => setUploadImage(true)}>
+                                            Click to re-upload image
                                         </button>
-                                        <br/>
+                                        <br />
 
                                         {/* button  */}
                                         <button className="btn btn-success mx-1" type="submit">
@@ -233,6 +318,26 @@ export default function Mobil() {
                         </div>
                     </div>
                     {/* end of modal */}
+
+                    {/* modal sewa */}
+                    <div className="modal" id="modal_sewa">
+                        <div className="modal-dialog">
+                            <div className="modal-content">
+                                <div className="modal-header" style={{background: `#1974D2`}}>
+                                    <h4 className="fw-light text-white">Form Sewa</h4>
+                                </div>
+                                <div className="modal-body">
+                                    <div className="row">
+                                        <div className="col-10">
+                                        {/* <input type="number" className="form-control mb-2" required
+                                            value={idMobil} onChange={ev => setIdMobil(ev.target.value)} /> */}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {/* end modal sewa */}
                 </div>
             </div>
         </div>

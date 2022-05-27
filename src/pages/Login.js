@@ -36,20 +36,26 @@ export default function Login(){
 
     return(
         <div className="container">
-            <div className="col-lg-5 mx-auto my-5">
+            <div className="row">
+            <div className="col-lg-6 col-md-6">
+                <img src="https://i.pinimg.com/564x/81/8f/48/818f48a8dcdf8764a5b955c4f3b41e67.jpg" alt="pict" 
+                style={{ width: `500px`, height: `400px` }} className="p-3" />
+            </div>
+            <div className="col-lg-5 col-md-5 my-5">
+                <h3 className="fw-bold">Zauva Car</h3>
                 <div className="card">
-                    <div className="card-header" style={{background: `blueviolet`}}>
-                        <h3 className="text-light fw-light">
+                    <div className="card-header" style={{background: `#488AC7`}}>
+                        <h4 className="text-light fw-light">
                             Log In Karyawan
-                        </h3>
+                        </h4>
                     </div>
                     <div className="card-body">
                         <form onSubmit={ev => loginProcess(ev)}>
-                            <h5 className="fw-light">Username</h5>
+                            <h6 className="fw-light">Username</h6>
                             <input type={`text`} className="form-control mb-2" required
                             value={username} onChange={(ev) => setUsername(ev.target.value)} />
 
-                            <h5  className="fw-light">Password</h5>
+                            <h6 className="fw-light">Password</h6>
                             <input type={`password`} className="form-control mb-2" required
                             value={password} onChange={(ev) => setPassword(ev.target.value)} />
 
@@ -59,6 +65,7 @@ export default function Login(){
                         </form>
                     </div>
                 </div>
+            </div>
             </div>
         </div>
     )

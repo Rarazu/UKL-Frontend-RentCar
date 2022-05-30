@@ -42,7 +42,7 @@ export default function Login(){
                 style={{ width: `500px`, height: `400px` }} className="p-3" />
             </div>
             <div className="col-lg-5 col-md-5 my-5">
-                <h3 className="fw-bold">Zauva Car</h3>
+                {/* <h3 className="fw-bold">Zauva Car</h3> */}
                 <div className="card">
                     <div className="card-header" style={{background: `#488AC7`}}>
                         <h4 className="text-light fw-light">

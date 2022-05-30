@@ -22,10 +22,11 @@ export default function Mobil() {
 
     // sewa 
     let [pelanggan, setPelanggan] = useState([])
-    
-
+    let [selectedPelanggan, setSelectedPelanggan] = useState("")
+    let [selectedDate, setSelectedDate] = useState("")
+    let [selectedBack, setSelectedBack] = useState("")
     // sewa
-    
+
 
     let token = localStorage.getItem(`token-rent`)
     let authorization = {
@@ -147,9 +148,43 @@ export default function Mobil() {
         }
     }
 
+    let getPelanggan = () => {
+        let endpoint = "http://localhost:8000/pelanggan"
+        axios.get(endpoint, authorization)
+            .then(response => {
+                setPelanggan(response.data)
+            })
+            .catch(error => console.log(error))
+    }
+
     let addSewa = item => {
         modalSewa.show()
         setIdMobil(item.id_mobil)
+        setMerk(item.merk)
+        setBiayaSewa(item.biaya_sewa)
+    }
+
+    let saveSewa = () => {
+        if (window.confirm(`Sure to save this data?`)) {
+            let karyawan = JSON.parse(localStorage.getItem(`karyawan-rent`))
+            let id = karyawan.id_karyawan
+
+            let endpoint = `http://localhost:8000/sewa`
+            let request = {
+                id_mobil: idMobil,
+                id_karyawan: id,
+                id_pelanggan: selectedPelanggan,
+                tgl_sewa: selectedDate,
+                tgl_kembali: selectedBack
+            }
+
+            axios.post(endpoint, request, authorization)
+                .then(response => {
+                    alert(response.data.message)
+                    getMobil()
+                })
+                .catch(error => console.log(error))
+        }
     }
 
     useEffect(() => {
@@ -163,6 +198,7 @@ export default function Mobil() {
         )
         setModalSewa(sewa)
         getMobil()
+        getPelanggan()
     }, [])
 
     return (
@@ -204,7 +240,7 @@ export default function Mobil() {
 
                                     {/* deskripsi */}
                                     < div className="col-lg-3">
-                                        <small className="fst-italic" style={{color: `darkblue`}}>Merk</small>
+                                        <small className="fst-italic" style={{ color: `darkblue` }}>Merk</small>
                                         <h5 className="fw-bold">{item.merk}</h5>
                                         <small>Biaya Sewa</small>
                                         <h5 className="fw-bold">{item.biaya_sewa} / hari</h5>
@@ -225,11 +261,11 @@ export default function Mobil() {
                                             </small>
                                             <button className="btn btn-info btn-sm m-1"
                                                 onClick={() => editMobil(item)}>
-                                                <span className="fa fa-edit"></span> 
+                                                <span className="fa fa-edit"></span>
                                             </button>
                                             <button className="btn btn-danger btn-sm m-1"
                                                 onClick={() => deleteMobil(item)}>
-                                                <span className="fa fa-trash"></span> 
+                                                <span className="fa fa-trash"></span>
                                             </button>
                                         </div>
                                     </div>
@@ -239,7 +275,7 @@ export default function Mobil() {
                                                 Sewa
                                             </small>
                                             <button className="btn btn-warning btn-sm m-1"
-                                            onClick={() => addSewa()}>
+                                                onClick={() => addSewa(item)}>
                                                 <span className="fa fa-shopping-basket"></span> Sewa
                                             </button>
                                         </div>
@@ -251,7 +287,7 @@ export default function Mobil() {
                     {/* button add data */}
                     <button className="btn btn-success btn-sm m-2"
                         onClick={() => addMobil()}>
-                        <span className="fa fa-plus"></span> Tambah Data
+                        <span className="fa fa-plus"></span> Tambah Mobil
                     </button>
 
                     {/* modal */}
@@ -323,16 +359,87 @@ export default function Mobil() {
                     <div className="modal" id="modal_sewa">
                         <div className="modal-dialog">
                             <div className="modal-content">
-                                <div className="modal-header" style={{background: `#1974D2`}}>
+                                <div className="modal-header" style={{ background: `#1974D2` }}>
                                     <h4 className="fw-light text-white">Form Sewa</h4>
                                 </div>
                                 <div className="modal-body">
-                                    <div className="row">
-                                        <div className="col-10">
-                                        {/* <input type="number" className="form-control mb-2" required
-                                            value={idMobil} onChange={ev => setIdMobil(ev.target.value)} /> */}
+                                    <h6 className="fw-bold">Deskripsi Mobil yang disewa :</h6>
+                                    <div className="row p-2">
+                                        <div className="col-3">
+                                            ID Mobil
+                                        </div>
+                                        <div className="col-9">
+                                            <input type="text" className="form-control mb-2" required
+                                                value={idMobil} onChange={ev => setIdMobil(ev.target.value)} />
+                                        </div>
+
+                                        <div className="col-3">
+                                            Merk
+                                        </div>
+                                        <div className="col-9">
+                                            <input type="text" className="form-control mb-2" required
+                                                value={merk} onChange={ev => setMerk(ev.target.value)} />
+                                        </div>
+
+                                        <div className="col-3">
+                                            Biaya Sewa
+                                        </div>
+                                        <div className="col-9">
+                                            <input type="number" className="form-control mb-2" required
+                                                value={biayaSewa} onChange={ev => setBiayaSewa(ev.target.value)} />
                                         </div>
                                     </div>
+
+                                    <br />
+                                    <h6 className="fw-bold">Form Penyewaan :</h6>
+                                    <div className="row p-2">
+                                        <div className="col-4">
+                                            Pilih Pelanggan :
+                                        </div>
+                                        <div className="col-8">
+                                            <select className="form-control"
+                                            onChange={ev => setSelectedPelanggan(ev.target.value)}
+                                            value={selectedPelanggan}>
+                                                <option value="">
+                                                    --- List Pelanggan ---
+                                                </option>
+                                                {pelanggan.map(item => (
+                                                    <option value={item.id_pelanggan}
+                                                        key={`key${item.id_pelanggan}`}>
+                                                        {item.nama_pelanggan}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+
+                                        <div className="col-4 my-2">
+                                            Tanggal Sewa :
+                                        </div>
+                                        <div className="col-8 my-2">
+                                            <input type="date"
+                                                className="form-control"
+                                                onChange={ev => setSelectedDate(ev.target.value)}
+                                                value={selectedDate} />
+                                        </div>
+
+                                        <div className="col-4 my-2">
+                                            Tanggal Kembali :
+                                        </div>
+                                        <div className="col-8 my-2">
+                                            <input type="date"
+                                                className="form-control"
+                                                onChange={ev => setSelectedBack(ev.target.value)}
+                                                value={selectedBack} />
+                                        </div>
+                                    </div>
+
+                                    <button className="btn btn-success mx-1" 
+                                    onClick={() => saveSewa()}>
+                                        <span className="fa fa-check"></span> Save
+                                    </button>
+                                    <button type="button" className="btn btn-secondary mx-1" data-bs-dismiss="modal">
+                                        <span className="fa fa-times"></span> Cancel
+                                    </button>
                                 </div>
                             </div>
                         </div>

@@ -164,7 +164,10 @@ export default function Mobil() {
         setBiayaSewa(item.biaya_sewa)
     }
 
-    let saveSewa = () => {
+    let saveSewa = ev => {
+        ev.preventDefault()
+        modal.hide()
+
         if (window.confirm(`Sure to save this data?`)) {
             let karyawan = JSON.parse(localStorage.getItem(`karyawan-rent`))
             let id = karyawan.id_karyawan
@@ -391,7 +394,7 @@ export default function Mobil() {
                                     </div>
 
                                     <br />
-                                    <h6 className="fw-bold">Form Penyewaan :</h6>
+                                    <h6 className="fw-bold">Detail Penyewaan :</h6>
                                     <div className="row p-2">
                                         <div className="col-4">
                                             Pilih Pelanggan :
@@ -434,7 +437,7 @@ export default function Mobil() {
                                     </div>
 
                                     <button className="btn btn-success mx-1" 
-                                    onClick={() => saveSewa()}>
+                                    onClick={(ev) => saveSewa(ev)}>
                                         <span className="fa fa-check"></span> Save
                                     </button>
                                     <button type="button" className="btn btn-secondary mx-1" data-bs-dismiss="modal">

@@ -3,9 +3,6 @@ import axios from "axios"
 
 export default function Sewa(){
     let [sewa, setSewa] = useState([])
-    let [pelanggan, setPelanggan] = useState([])
-    let [karyawan, setKaryawan] = useState([])
-    let [mobil, setMobil] = useState([])
 
     let token = localStorage.getItem(`token-rent`)
     let authorization = {
